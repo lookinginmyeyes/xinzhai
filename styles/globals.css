@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400;600&family=ZCOOL+XiaoWei&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 主色 */
+  --color-primary: #B8A99A;
+  --color-primary-light: #D4C8BA;
+  --color-primary-dark: #9A8A7A;
+
+  /* 背景色 */
+  --color-background: #FDFCF9;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #F5F2ED;
+
+  /* 文字色 */
+  --color-text-primary: #3A3835;
+  --color-text-secondary: #6A6560;
+  --color-text-muted: #9A9590;
+
+  /* 边框色 */
+  --color-border: #E8E5E0;
+  --color-border-light: #F0EDE8;
+
+  /* 功能色 */
+  --color-success: #8B9A7D;
+  --color-warning: #D4A574;
+  --color-error: #C4786A;
+
+  /* 情绪标签色 */
+  --emotion-anxious: #D4A574;
+  --emotion-empty: #A8A0A0;
+  --emotion-low: #9A8A7A;
+  --emotion-calm: #8B9A7D;
+  --emotion-joy: #C4A574;
+
+  /* 字体 */
+  --font-display: "ZCOOL XiaoWei", "Noto Serif SC", serif;
+  --font-body: "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* 字号 */
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+
+  /* 行高 */
+  --leading-tight: 1.4;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.7;
+
+  /* 圆角 */
+  --radius-full: 9999px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+
+  /* 间距 */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 40px;
+  --spacing-2xl: 64px;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 3px rgba(58, 56, 53, 0.04);
+  --shadow-md: 0 4px 12px rgba(58, 56, 53, 0.06);
+  --shadow-lg: 0 8px 24px rgba(58, 56, 53, 0.08);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 胶囊形按钮基础样式 */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* 胶囊形标签 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  background-color: var(--color-surface-elevated);
+  color: var(--color-text-secondary);
+}
+
+/* 卡片 */
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-md);
+}
