@@ -19,7 +19,12 @@ const GREETINGS = [
   '又见面了，有什么想聊的吗？',
 ];
 
-const SUMMARY_TRIGGER_WORDS = ['没了', '就这些', '没什么了', '好了', '说完', '没有了'];
+// 触发总结的关键词
+const SUMMARY_TRIGGER_WORDS = [
+  '没了', '就这些', '没什么了', '好了', '说完', '没有了',
+  '结束', '拜拜', '再见', ' bye', '先这样', '差不多', '聊完了',
+  '暂时这样', '先到这', '不聊了', '下线', '可以的', '行吧'
+];
 
 export default function ChatPage() {
   const router = useRouter();
@@ -64,6 +69,39 @@ export default function ChatPage() {
     conversationRef.current = initialMsg;
   }, []);
 
+  // 保存签到记录
+  const saveCheckInRecord = (allMessages: Message[], emotion: EmotionType, keywords: string[], microAction: string) => {
+    const checkIn: CheckIn = {
+      id: Date.now().toString(),
+      date: new Date().toISOString().split('T')[0],
+      emotion,
+      keywords,
+      microAction,
+      conversation: allMessages,
+      createdAt: new Date().toISOString(),
+    };
+
+    console.log('Saving checkIn:', checkIn);
+    storage.saveCheckIn(checkIn);
+
+    // 提取并保存记忆
+    const allUserText = allMessages
+      .filter(m => m.role === 'user')
+      .map(m => m.content)
+      .join(' ');
+
+    const memoryContent = extractMemory(allUserText);
+    if (memoryContent) {
+      const memory: Memory = {
+        id: Date.now().toString(),
+        content: memoryContent,
+        emotion,
+        createdAt: new Date().toISOString(),
+      };
+      storage.saveMemory(memory);
+    }
+  };
+
   // 发送消息
   const handleSend = async (text: string) => {
     const userMessage: Message = {
@@ -78,8 +116,8 @@ export default function ChatPage() {
 
     // 检查是否触发总结
     const shouldSummarize = SUMMARY_TRIGGER_WORDS.some(word => text.includes(word));
-    const messageCount = newMessages.length;
-    const needsSummary = shouldSummarize || messageCount >= 10;
+    const messageCount = newMessages.filter(m => m.role === 'user').length;
+    const needsSummary = shouldSummarize || messageCount >= 6;
 
     setIsTyping(true);
 
@@ -136,35 +174,7 @@ export default function ChatPage() {
           setIsComplete(true);
 
           // 保存签到记录
-          const checkIn: CheckIn = {
-            id: Date.now().toString(),
-            date: new Date().toISOString().split('T')[0],
-            emotion,
-            keywords,
-            microAction,
-            conversation: updatedMessages,
-            createdAt: new Date().toISOString(),
-          };
-
-          console.log('Saving checkIn:', checkIn);
-          storage.saveCheckIn(checkIn);
-
-          // 提取并保存记忆
-          const allUserText = newMessages
-            .filter(m => m.role === 'user')
-            .map(m => m.content)
-            .join(' ');
-
-          const memoryContent = extractMemory(allUserText);
-          if (memoryContent) {
-            const memory: Memory = {
-              id: Date.now().toString(),
-              content: memoryContent,
-              emotion,
-              createdAt: new Date().toISOString(),
-            };
-            storage.saveMemory(memory);
-          }
+          saveCheckInRecord(updatedMessages, emotion, keywords, microAction);
         }
       } else {
         setMessages((prev) => [...prev, {
@@ -185,14 +195,58 @@ export default function ChatPage() {
     }
   };
 
+  // 手动结束签到
+  const handleManualEnd = () => {
+    const allMessages = conversationRef.current;
+
+    // 从对话中推断情绪
+    const allUserText = allMessages
+      .filter(m => m.role === 'user')
+      .map(m => m.content)
+      .join(' ');
+
+    const emotion = detectEmotion(allUserText);
+    const keywords = ['日常记录'];
+    const microAction = '深呼吸，放松一下';
+
+    setSummary({ emotion, keywords, microAction });
+    setIsComplete(true);
+
+    // 保存签到记录
+    saveCheckInRecord(allMessages, emotion, keywords, microAction);
+  };
+
   const handleComplete = () => {
     router.push('/');
     router.refresh();
   };
 
+  // 计算用户发言轮数
+  const userMessageCount = messages.filter(m => m.role === 'user').length;
+  const canEndCheckIn = userMessageCount >= 3 && !isComplete && !isTyping;
+
+  // 右上角结束按钮
+  const endButton = (
+    <button
+      onClick={handleManualEnd}
+      disabled={!canEndCheckIn}
+      className={`text-sm px-3 py-1 rounded-full transition-all ${
+        canEndCheckIn
+          ? 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)]'
+          : 'bg-[var(--color-surface-elevated)] text-[var(--color-text-muted)] cursor-not-allowed'
+      }`}
+    >
+      结束
+    </button>
+  );
+
   return (
     <div className="flex flex-col h-screen">
-      <Header title="签到中" showBack />
+      <Header
+        title={isComplete ? '签到完成' : '签到中'}
+        showBack
+        rightAction={!isComplete ? endButton : undefined}
+      />
 
       <div className="flex-1 overflow-y-auto px-4 py-4 pb-24">
         {messages.map((msg, index) => (
@@ -242,7 +296,9 @@ export default function ChatPage() {
       </div>
 
       {!isComplete && (
-        <ChatInput onSend={handleSend} disabled={isTyping} />
+        <div className="border-t border-[var(--color-border-light)] bg-[var(--color-background)] p-3">
+          <ChatInput onSend={handleSend} disabled={isTyping} />
+        </div>
       )}
     </div>
   );

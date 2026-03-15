@@ -17,13 +17,9 @@ export default function HomePage() {
   const [allCheckIns, setAllCheckIns] = useState<CheckIn[]>([]);
 
   useEffect(() => {
-    // 每次进入页面都重新读取
     const checkIns = storage.getCheckIns();
-    console.log('Loaded checkIns:', checkIns.length, checkIns);
-
     const today = new Date().toISOString().split('T')[0];
 
-    // 查找今天的签到
     const todayRecord = checkIns.find(c => c.date === today);
     if (todayRecord) {
       setHasCheckedInToday(true);
@@ -33,10 +29,7 @@ export default function HomePage() {
       setTodayCheckIn(null);
     }
 
-    // 最近5条记录（包括今天）
     setRecentCheckIns(checkIns.slice(0, 5));
-
-    // 所有记录用于图表
     setAllCheckIns(checkIns);
   }, []);
 

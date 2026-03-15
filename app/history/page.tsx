@@ -43,8 +43,8 @@ export default function HistoryPage() {
       <Header title="历史记录" showBack />
 
       <main className="flex-1 px-4 py-6 max-w-lg mx-auto w-full">
-        {/* 情绪曲线 */}
-        {checkIns.length >= 2 && (
+        {/* 情绪曲线 - 只要有记录就显示 */}
+        {checkIns.length >= 1 && (
           <section className="mb-6">
             <EmotionChart checkIns={checkIns} />
           </section>

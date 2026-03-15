@@ -16,21 +16,36 @@ export const storage = {
   getCheckIns: (): CheckIn[] => {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.checkIns);
+      console.log('[Storage] getCheckIns:', data ? JSON.parse(data).length : 0, 'records');
       return data ? JSON.parse(data) : [];
     } catch {
       return [];
     }
   },
 
-  // 保存签到记录
-  saveCheckIn: (checkIn: CheckIn): void => {
+  // 保存签到记录 (别名)
+  saveCheckIn: function(checkIn: CheckIn): void {
+    this.saveCheckInRecord(checkIn);
+  },
+
+  // 保存签到记录 (主要方法)
+  saveCheckInRecord: (checkIn: CheckIn): void => {
     try {
       const checkIns = storage.getCheckIns();
-      const updated = [checkIn, ...checkIns].slice(0, MAX_CHECKINS);
+      // 检查今天是否已有记录，有则更新
+      const existingIndex = checkIns.findIndex(c => c.date === checkIn.date);
+      let updated: CheckIn[];
+      if (existingIndex >= 0) {
+        updated = [...checkIns];
+        updated[existingIndex] = checkIn;
+      } else {
+        updated = [checkIn, ...checkIns].slice(0, MAX_CHECKINS);
+      }
       localStorage.setItem(STORAGE_KEYS.checkIns, JSON.stringify(updated));
       localStorage.setItem(STORAGE_KEYS.lastCheckIn, checkIn.date);
+      console.log('[Storage] saveCheckIn success, total:', updated.length);
     } catch (e) {
-      console.error('Save checkin error:', e);
+      console.error('[Storage] saveCheckIn error:', e);
     }
   },
 
@@ -54,8 +69,9 @@ export const storage = {
       }
       const updated = [memory, ...memories].slice(0, MAX_MEMORIES);
       localStorage.setItem(STORAGE_KEYS.memories, JSON.stringify(updated));
+      console.log('[Storage] saveMemory success, total:', updated.length);
     } catch (e) {
-      console.error('Save memory error:', e);
+      console.error('[Storage] saveMemory error:', e);
     }
   },
 

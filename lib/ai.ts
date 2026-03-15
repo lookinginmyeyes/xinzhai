@@ -1,57 +1,8 @@
-// AI API 调用封装 - 使用阿里云 DashScope (兼容 OpenAI 协议)
+// AI API 调用封装 - 使用智谱 API (兼容 Anthropic 协议)
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
-}
-
-export async function chat(messages: ChatMessage[]): Promise<string> {
-  // 直接读取环境变量
-  const apiKey = process.env.DASHSCOPE_API_KEY;
-  const baseUrl = process.env.DASHSCOPE_BASE_URL || 'https://coding.dashscope.aliyuncs.com/v1';
-  const model = process.env.DASHSCOPE_MODEL || 'glm-5';
-
-  console.log('[AI] API Key length:', apiKey?.length);
-  console.log('[AI] API Key prefix:', apiKey?.substring(0, 10));
-
-  if (!apiKey) {
-    console.warn('[AI] No API key, using mock response');
-    return getMockResponse(messages);
-  }
-
-  try {
-    const url = `${baseUrl}/chat/completions`;
-
-    console.log('[AI] Calling:', url);
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-    });
-
-    console.log('[AI] Response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[AI] Error:', errorText);
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  } catch (error) {
-    console.error('[AI] Chat error:', error);
-    throw error;
-  }
 }
 
 // Mock 响应
@@ -70,4 +21,66 @@ function getMockResponse(messages: ChatMessage[]): string {
   }
 
   return '谢谢你和我分享。能再多说说你的感受吗？我在这里听你说。';
+}
+
+export async function chat(messages: ChatMessage[]): Promise<string> {
+  // 智谱 API 配置
+  const apiKey = '810dbd8d082d4e48a5e8b693334f8693.qnf9YmoYUARK6sw3';
+  const baseUrl = 'https://open.bigmodel.cn/api/anthropic';
+  const model = 'glm-5';
+
+  if (!apiKey) {
+    console.warn('[AI] No API key, using mock response');
+    return getMockResponse(messages);
+  }
+
+  try {
+    // 分离 system 消息和对话消息
+    const systemMessage = messages.find(m => m.role === 'system');
+    const chatMessages = messages.filter(m => m.role !== 'system');
+
+    const url = `${baseUrl}/v1/messages`;
+
+    console.log('[AI] Calling:', url);
+    console.log('[AI] Model:', model);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 500,
+        system: systemMessage?.content || '',
+        messages: chatMessages.map(m => ({
+          role: m.role,
+          content: m.content,
+        })),
+      }),
+    });
+
+    console.log('[AI] Response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[AI] Error response:', errorText);
+      throw new Error(`API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('[AI] Response data:', JSON.stringify(data, null, 2));
+
+    // Anthropic 协议返回格式: { content: [{ type: "text", text: "..." }] }
+    if (data.content && data.content[0] && data.content[0].text) {
+      return data.content[0].text;
+    }
+
+    throw new Error('Unexpected response format');
+  } catch (error) {
+    console.error('[AI] Chat error:', error);
+    throw error;
+  }
 }
