@@ -1,4 +1,4 @@
-// AI API 调用封装 - 使用智谱 API (兼容 Anthropic 协议)
+// AI API 调用封装 - 使用智谱 API (OpenAI 兼容协议)
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -26,7 +26,7 @@ function getMockResponse(messages: ChatMessage[]): string {
 export async function chat(messages: ChatMessage[]): Promise<string> {
   // 智谱 API 配置
   const apiKey = '810dbd8d082d4e48a5e8b693334f8693.qnf9YmoYUARK6sw3';
-  const baseUrl = 'https://open.bigmodel.cn/api/anthropic';
+  const baseUrl = 'https://open.bigmodel.cn/api/coding/paas/v4';
   const model = 'glm-5';
 
   if (!apiKey) {
@@ -35,11 +35,7 @@ export async function chat(messages: ChatMessage[]): Promise<string> {
   }
 
   try {
-    // 分离 system 消息和对话消息
-    const systemMessage = messages.find(m => m.role === 'system');
-    const chatMessages = messages.filter(m => m.role !== 'system');
-
-    const url = `${baseUrl}/v1/messages`;
+    const url = `${baseUrl}/chat/completions`;
 
     console.log('[AI] Calling:', url);
     console.log('[AI] Model:', model);
@@ -48,17 +44,13 @@ export async function chat(messages: ChatMessage[]): Promise<string> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model,
+        messages,
+        temperature: 0.7,
         max_tokens: 500,
-        system: systemMessage?.content || '',
-        messages: chatMessages.map(m => ({
-          role: m.role,
-          content: m.content,
-        })),
       }),
     });
 
@@ -73,9 +65,9 @@ export async function chat(messages: ChatMessage[]): Promise<string> {
     const data = await response.json();
     console.log('[AI] Response data:', JSON.stringify(data, null, 2));
 
-    // Anthropic 协议返回格式: { content: [{ type: "text", text: "..." }] }
-    if (data.content && data.content[0] && data.content[0].text) {
-      return data.content[0].text;
+    // OpenAI 协议返回格式: { choices: [{ message: { content: "..." } }] }
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      return data.choices[0].message.content;
     }
 
     throw new Error('Unexpected response format');
