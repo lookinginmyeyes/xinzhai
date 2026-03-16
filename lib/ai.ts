@@ -13,7 +13,7 @@ function getMockResponse(messages: ChatMessage[]): string {
 }
 
 export async function chat(messages: ChatMessage[]): Promise<string> {
-  const apiKey = process.env.ZHIPU_API_KEY || '';
+  const apiKey = process.env.ZHIPU_API_KEY || 'c7f65e3e999f447d94fd23e1530d7ff0.xl3GAHCgyZ9igZzx';
   const baseUrl = process.env.ZHIPU_BASE_URL || 'https://open.bigmodel.cn/api/coding/paas/v4';
   const model = process.env.ZHIPU_MODEL || 'glm-5';
 
