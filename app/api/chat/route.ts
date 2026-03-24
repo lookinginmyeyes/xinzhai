@@ -3,7 +3,6 @@ import { chat, ChatMessage } from '@/lib/ai';
 import { SYSTEM_PROMPT, MEMORY_TEMPLATE, SUMMARY_PROMPT } from '@/lib/prompts';
 
 export async function POST(request: NextRequest) {
-  console.log('[ENV CHECK] ARK_API_KEY exists:', !!process.env.ARK_API_KEY, '| KEY prefix:', process.env.ARK_API_KEY?.slice(0, 8));
   try {
     const body = await request.json();
     const { messages, memories, isSummary } = body;
