@@ -1,4 +1,4 @@
-﻿// AI API 调用封装 - 使用智谱 API (OpenAI 兼容协议)
+// AI API 调用封装 - 使用火山方舟 API (OpenAI 兼容协议)
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -13,9 +13,9 @@ function getMockResponse(messages: ChatMessage[]): string {
 }
 
 export async function chat(messages: ChatMessage[]): Promise<string> {
-  const apiKey = process.env.ZHIPU_API_KEY || 'c7f65e3e999f447d94fd23e1530d7ff0.xl3GAHCgyZ9igZzx';
-  const baseUrl = process.env.ZHIPU_BASE_URL || 'https://open.bigmodel.cn/api/coding/paas/v4';
-  const model = process.env.ZHIPU_MODEL || 'glm-5';
+  const apiKey = process.env.ARK_API_KEY || '';
+  const baseUrl = process.env.ARK_BASE_URL || 'https://ark.cn-beijing.volces.com/api/coding/v3';
+  const model = process.env.ARK_MODEL || 'Doubao-Seed-2.0-lite';
 
   if (!apiKey) {
     console.warn('[AI] No API key, using mock response');
