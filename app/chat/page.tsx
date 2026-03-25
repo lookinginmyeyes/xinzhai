@@ -218,7 +218,6 @@ export default function ChatPage() {
 
   const handleComplete = () => {
     router.push('/');
-    router.refresh();
   };
 
   // 计算用户发言轮数
