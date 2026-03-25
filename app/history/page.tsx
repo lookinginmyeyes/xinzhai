@@ -12,21 +12,22 @@ export default function HistoryPage() {
   const [groupedHistory, setGroupedHistory] = useState<Record<string, CheckIn[]>>({});
 
   useEffect(() => {
-    const allCheckIns = storage.getCheckIns();
-    setCheckIns(allCheckIns);
+    const loadData = async () => {
+      const allCheckIns = await storage.fetchCheckIns();
+      setCheckIns(allCheckIns);
 
-    // 按月份分组
-    const grouped = allCheckIns.reduce((acc, checkIn) => {
-      const date = new Date(checkIn.date);
-      const monthKey = `${date.getFullYear()}年${date.getMonth() + 1}月`;
-      if (!acc[monthKey]) {
-        acc[monthKey] = [];
-      }
-      acc[monthKey].push(checkIn);
-      return acc;
-    }, {} as Record<string, CheckIn[]>);
+      // 按月份分组
+      const grouped = allCheckIns.reduce((acc, checkIn) => {
+        const date = new Date(checkIn.date);
+        const monthKey = `${date.getFullYear()}年${date.getMonth() + 1}月`;
+        if (!acc[monthKey]) acc[monthKey] = [];
+        acc[monthKey].push(checkIn);
+        return acc;
+      }, {} as Record<string, CheckIn[]>);
 
-    setGroupedHistory(grouped);
+      setGroupedHistory(grouped);
+    };
+    loadData();
   }, []);
 
   const formatDate = (dateStr: string) => {

@@ -70,7 +70,7 @@ export default function ChatPage() {
   }, []);
 
   // 保存签到记录
-  const saveCheckInRecord = (allMessages: Message[], emotion: EmotionType, keywords: string[], microAction: string) => {
+  const saveCheckInRecord = async (allMessages: Message[], emotion: EmotionType, keywords: string[], microAction: string) => {
     const checkIn: CheckIn = {
       id: Date.now().toString(),
       date: new Date().toISOString().split('T')[0],
@@ -82,7 +82,7 @@ export default function ChatPage() {
     };
 
     console.log('Saving checkIn:', checkIn);
-    storage.saveCheckIn(checkIn);
+    await storage.saveCheckIn(checkIn);
 
     // 提取并保存记忆
     const allUserText = allMessages
@@ -98,7 +98,7 @@ export default function ChatPage() {
         emotion,
         createdAt: new Date().toISOString(),
       };
-      storage.saveMemory(memory);
+      await storage.saveMemory(memory);
     }
   };
 

@@ -17,20 +17,23 @@ export default function HomePage() {
   const [allCheckIns, setAllCheckIns] = useState<CheckIn[]>([]);
 
   useEffect(() => {
-    const checkIns = storage.getCheckIns();
-    const today = new Date().toISOString().split('T')[0];
+    const loadData = async () => {
+      const checkIns = await storage.fetchCheckIns();
+      const today = new Date().toISOString().split('T')[0];
 
-    const todayRecord = checkIns.find(c => c.date === today);
-    if (todayRecord) {
-      setHasCheckedInToday(true);
-      setTodayCheckIn(todayRecord);
-    } else {
-      setHasCheckedInToday(false);
-      setTodayCheckIn(null);
-    }
+      const todayRecord = checkIns.find(c => c.date === today);
+      if (todayRecord) {
+        setHasCheckedInToday(true);
+        setTodayCheckIn(todayRecord);
+      } else {
+        setHasCheckedInToday(false);
+        setTodayCheckIn(null);
+      }
 
-    setRecentCheckIns(checkIns.slice(0, 5));
-    setAllCheckIns(checkIns);
+      setRecentCheckIns(checkIns.slice(0, 5));
+      setAllCheckIns(checkIns);
+    };
+    loadData();
   }, []);
 
   return (
