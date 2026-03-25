@@ -228,7 +228,7 @@ export default function ChatPage() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-4 animate-fade-in">
         {messages.map((msg, index) => (
           <ChatBubble key={index} role={msg.role === 'assistant' ? 'ai' : 'user'} content={msg.content} />
         ))}

@@ -5,9 +5,9 @@ import { buildSystemPrompt, EXTRACT_MEMORY_PROMPT, parseSummary, SUMMARY_PROMPT 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { messages, memories = [], profile = {}, isSummary, isExtractMemory } = body;
+    const { messages, memories = [], profile = {}, isSummary, isExtractMemory, systemOverride } = body;
 
-    const systemPrompt = buildSystemPrompt(memories, profile);
+    const systemPrompt = systemOverride || buildSystemPrompt(memories, profile);
 
     const fullMessages: ChatMessage[] = [
       { role: 'system', content: systemPrompt },

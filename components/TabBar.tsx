@@ -63,8 +63,8 @@ export default function TabBar() {
               </span>
             </Link>
           );
-        });
-        }
+        })}
+
       </div>
     </nav>
   );
