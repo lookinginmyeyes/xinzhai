@@ -46,7 +46,10 @@ export default function ChatPage() {
   const memoriesRef = useRef<string[]>([]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
   }, [messages]);
 
   useEffect(() => {
@@ -207,7 +210,7 @@ export default function ChatPage() {
   const canEnd = userMessageCount >= 3 && !checkInComplete && !isTyping;
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-dvh min-h-0 overflow-hidden">
       <Header
         title={checkInComplete ? '自由对话' : '签到中'}
         showBack
@@ -228,7 +231,7 @@ export default function ChatPage() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 animate-fade-in">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-4 py-4 animate-fade-in [scrollbar-gutter:stable]">
         {messages.map((msg, index) => (
           <ChatBubble key={index} role={msg.role === 'assistant' ? 'ai' : 'user'} content={msg.content} />
         ))}

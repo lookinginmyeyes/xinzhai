@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { shouldHideTabBar } from '@/lib/navigation';
 
 const tabs = [
   {
@@ -37,10 +38,7 @@ const tabs = [
 
 export default function TabBar() {
   const pathname = usePathname();
-  // 对话页和history页都不显示TabBar（全屏沉浸）
-  if (pathname.startsWith('/chat') || pathname.startsWith('/history') || pathname.startsWith('/about')) {
-    return null;
-  }
+  if (shouldHideTabBar(pathname)) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--color-background)]/95 backdrop-blur-sm border-t border-[var(--color-border-light)]">
